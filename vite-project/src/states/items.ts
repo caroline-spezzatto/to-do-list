@@ -1,33 +1,48 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
-type ToDoItem = {
-  id: number
+type Item = {
+  id: string
   item: string
   completed: boolean
 }
 
 export interface State {
-  items: ToDoItem[]
-  addItem(item: ToDoItem): void
-  removeItem(item: ToDoItem): void
-  completedItem(item: ToDoItem): void
+  items: Item[]
+  addItem(item: Item): void
+  editItem(item: Item): void
+  removeItem(item: Item): void
+  completedItem(item: Item): void
 }
 
-export const useToDoItems = create<State>(set => ({
-  items: [],
-  addItem: item => set(state => ({ items: [...state.items, item] })),
-  removeItem: item =>
-    set(state => ({
-      items: state.items.filter(({ id }) => id !== item.id)
-    })),
-  completedItem(item) {
-    set(state => ({
-      items: state.items.map(item2 => {
-        if (item2.id === item.id) {
-          return { ...item2, completed: !item2.completed }
-        }
-        return item2
-      })
-    }))
-  }
-}))
+export const useItems = create(
+  persist<State>(
+    set => ({
+      items: [],
+      addItem: item => set(state => ({ items: [...state.items, item] })),
+      editItem: item => {
+        set(state => ({
+          items: state.items.map(i => (i.id === item.id ? item : i))
+        }))
+      },
+      removeItem: item =>
+        set(state => ({
+          items: state.items.filter(({ id }) => id !== item.id)
+        })),
+      completedItem(items) {
+        set(state => ({
+          items: state.items.map(item => {
+            if (item.id === items.id) {
+              return { ...item, completed: !item.completed }
+            }
+            return item
+          })
+        }))
+      }
+    }),
+    {
+      name: 'items-storage',
+      storage: createJSONStorage(() => sessionStorage)
+    }
+  )
+)

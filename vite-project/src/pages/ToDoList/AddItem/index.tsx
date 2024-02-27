@@ -2,7 +2,7 @@ import { Box, IconButton, TextField } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { AddItemProps } from './interfaces'
 
-export const AddItem = ({ item, setItem, addToDoItem }: AddItemProps) => {
+export const AddItem = ({ item, setItem, handleAddItem }: AddItemProps) => {
   return (
     <Box display="flex">
       <TextField
@@ -11,13 +11,16 @@ export const AddItem = ({ item, setItem, addToDoItem }: AddItemProps) => {
         label="Tarefa"
         variant="outlined"
         sx={{ marginRight: 2 }}
-        onChange={e => {
-          setItem(e.target.value)
+        onChange={({ target }) => {
+          setItem(target.value)
         }}
       />
       <IconButton
+        disabled={!item}
         type="submit"
-        onClick={() =>addToDoItem(item)}
+        onClick={() => {
+          handleAddItem(item), setItem('')
+        }}
       >
         <AddIcon fontSize="large" />
       </IconButton>

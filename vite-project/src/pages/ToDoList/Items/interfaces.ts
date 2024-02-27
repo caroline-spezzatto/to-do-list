@@ -1,11 +1,11 @@
 type ToDoItem = {
-  id: number
+  id: string
   item: string
   completed: boolean
 }
 
 export interface ItemsProps {
   items: ToDoItem[]
-  removeItem: (item: ToDoItem) => void
-  completedItem: (item: ToDoItem) => void
+  handleRemoveItem: (item: ToDoItem) => void
+  handleCompletedItem: (item: ToDoItem) => void
 }

@@ -1,15 +1,21 @@
 import { useState } from 'react'
 import { Card, Typography } from '@mui/material'
-import { useToDoItems } from '../../states/items'
+import { useItems } from '../../states/items'
 import { AddItem } from './AddItem'
 import { Items } from './Items'
 
 export const ToDoList = () => {
   const [item, setItem] = useState('')
-  const { addItem, removeItem, completedItem, items } = useToDoItems()
+  const { addItem, removeItem, completedItem, items } = useItems()
 
-  const addToDoItem = () => {
-    addItem({ id: items.length + 1, item: item, completed: false })
+  const id = Math.random().toString(16).slice(2)
+
+  const handleAddItem = () => {
+    addItem({
+      id,
+      item: item,
+      completed: false
+    })
   }
 
   const haveItem = items?.length > 0
@@ -25,12 +31,12 @@ export const ToDoList = () => {
         Nova tarefa:
       </Typography>
 
-      <AddItem item={item} addToDoItem={addToDoItem} setItem={setItem} />
+      <AddItem item={item} handleAddItem={handleAddItem} setItem={setItem} />
       {haveItem && (
         <Items
           items={items}
-          removeItem={removeItem}
-          completedItem={completedItem}
+          handleRemoveItem={removeItem}
+          handleCompletedItem={completedItem}
         />
       )}
     </Card>

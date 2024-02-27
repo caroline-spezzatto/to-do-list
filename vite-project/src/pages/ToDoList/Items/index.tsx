@@ -1,26 +1,40 @@
+import { useState } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
+  Box,
   List,
-  Card,
   ListItem,
   Checkbox,
+  TextField,
   IconButton,
   ListItemText,
   ListItemIcon,
   ListItemButton
 } from '@mui/material'
 import { ItemsProps } from './interfaces'
+import { useItems } from '../../../states/items'
 
 export const Items = ({
   items,
-  removeItem,
-  completedItem
+  handleRemoveItem,
+  handleCompletedItem
 }: ItemsProps) => {
+  const { editItem } = useItems()
+  const [isItemFocused, setIsItemFocused] = useState(new Array(items.length))
+
+  const handleItemFocusChange = (index: number) => {
+    const newIsItemFocused = [...isItemFocused]
+    newIsItemFocused[index] = !newIsItemFocused[index]
+    setIsItemFocused(newIsItemFocused)
+  }
+
   return (
-    <Card sx={{ maxWidth: 600, padding: 2, marginTop: 2 }}>
+    <Box marginTop={3}>
       {
         <List sx={{ width: '100%' }}>
           {items.map((value, index) => {
+            const completedItem = items[index].completed
+
             return (
               <ListItem
                 key={index}
@@ -29,32 +43,57 @@ export const Items = ({
                   <IconButton
                     edge="end"
                     type="button"
-                    onClick={() => removeItem(value)}
+                    onClick={() => handleRemoveItem(value)}
                   >
                     <DeleteIcon />
                   </IconButton>
                 }
               >
-                <ListItemButton
-                  dense
-                  onClick={() => {
-                    completedItem(value)
-                  }}
-                >
-                  <ListItemIcon>
+                <ListItemButton dense>
+                  <ListItemIcon sx={{ minWidth: 0 }}>
                     <Checkbox
                       edge="start"
                       disableRipple
-                      checked={items[index].completed}
+                      checked={completedItem}
+                      onClick={() => {
+                        handleCompletedItem(value)
+                      }}
                     />
                   </ListItemIcon>
-                  <ListItemText>{value.item}</ListItemText>
+                  {!isItemFocused[index] ? (
+                    <ListItemText
+                      onClick={() => {
+                        handleItemFocusChange(index)
+                      }}
+                      sx={{
+                        textDecoration: completedItem ? 'line-through' : 'none'
+                      }}
+                    >
+                      {value.item}
+                    </ListItemText>
+                  ) : (
+                    <TextField
+                      autoFocus
+                      variant="standard"
+                      value={value.item}
+                      sx={{ width: '100%' }}
+                      InputProps={{
+                        disableUnderline: true
+                      }}
+                      onChange={({ target }) => {
+                        editItem({ ...value, item: target.value })
+                      }}
+                      onBlur={() => {
+                        handleItemFocusChange(index)
+                      }}
+                    />
+                  )}
                 </ListItemButton>
               </ListItem>
             )
           })}
         </List>
       }
-    </Card>
+    </Box>
   )
 }
