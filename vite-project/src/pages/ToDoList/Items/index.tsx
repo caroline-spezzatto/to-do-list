@@ -1,6 +1,12 @@
 import { useState } from 'react'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  DropResult
+} from 'react-beautiful-dnd'
+import {
   Box,
   List,
   ListItem,
@@ -11,7 +17,7 @@ import {
   ListItemIcon,
   ListItemButton
 } from '@mui/material'
-import { ItemsProps } from './interfaces'
+import { ItemsProps, ToDoItem } from './interfaces'
 import { useItems } from '../../../states/items'
 
 export const Items = ({
@@ -19,8 +25,30 @@ export const Items = ({
   handleRemoveItem,
   handleCompletedItem
 }: ItemsProps) => {
-  const { editItem } = useItems()
+  const { editItem, reorderItems } = useItems()
   const [isItemFocused, setIsItemFocused] = useState(new Array(items.length))
+
+  const reorder = (list: ToDoItem[], startIndex: number, endIndex: number) => {
+    const result = Array.from(list)
+    const [removed] = result.splice(startIndex, 1)
+    result.splice(endIndex, 0, removed)
+
+    return result
+  }
+
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) {
+      return
+    }
+
+    const newItems = reorder(
+      items,
+      result.source.index,
+      result.destination.index
+    )
+
+    reorderItems(newItems)
+  }
 
   const handleItemFocusChange = (index: number) => {
     const newIsItemFocused = [...isItemFocused]
@@ -30,70 +58,92 @@ export const Items = ({
 
   return (
     <Box marginTop={3}>
-      {
-        <List sx={{ width: '100%' }}>
-          {items.map((value, index) => {
-            const completedItem = items[index].completed
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="items">
+          {provided => (
+            <List
+              sx={{ width: '100%' }}
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+            >
+              {items.map((value, index) => {
+                const completedItem = items[index].completed
 
-            return (
-              <ListItem
-                key={index}
-                disablePadding
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    type="button"
-                    onClick={() => handleRemoveItem(value)}
+                return (
+                  <Draggable
+                    key={index}
+                    index={index}
+                    draggableId={index.toString()}
                   >
-                    <DeleteIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemButton dense>
-                  <ListItemIcon sx={{ minWidth: 0 }}>
-                    <Checkbox
-                      edge="start"
-                      disableRipple
-                      checked={completedItem}
-                      onClick={() => {
-                        handleCompletedItem(value)
-                      }}
-                    />
-                  </ListItemIcon>
-                  {!isItemFocused[index] ? (
-                    <ListItemText
-                      onClick={() => {
-                        handleItemFocusChange(index)
-                      }}
-                      sx={{
-                        textDecoration: completedItem ? 'line-through' : 'none'
-                      }}
-                    >
-                      {value.item}
-                    </ListItemText>
-                  ) : (
-                    <TextField
-                      autoFocus
-                      variant="standard"
-                      value={value.item}
-                      sx={{ width: '100%' }}
-                      InputProps={{
-                        disableUnderline: true
-                      }}
-                      onChange={({ target }) => {
-                        editItem({ ...value, item: target.value })
-                      }}
-                      onBlur={() => {
-                        handleItemFocusChange(index)
-                      }}
-                    />
-                  )}
-                </ListItemButton>
-              </ListItem>
-            )
-          })}
-        </List>
-      }
+                    {provided => (
+                      <ListItem
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        key={index}
+                        disablePadding
+                        secondaryAction={
+                          <IconButton
+                            edge="end"
+                            type="button"
+                            onClick={() => handleRemoveItem(value)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        }
+                      >
+                        <ListItemButton dense>
+                          <ListItemIcon sx={{ minWidth: 0 }}>
+                            <Checkbox
+                              edge="start"
+                              disableRipple
+                              checked={completedItem}
+                              onClick={() => {
+                                handleCompletedItem(value)
+                              }}
+                            />
+                          </ListItemIcon>
+                          {!isItemFocused[index] ? (
+                            <ListItemText
+                              onClick={() => {
+                                handleItemFocusChange(index)
+                              }}
+                              sx={{
+                                textDecoration: completedItem
+                                  ? 'line-through'
+                                  : 'none'
+                              }}
+                            >
+                              {value.item}
+                            </ListItemText>
+                          ) : (
+                            <TextField
+                              autoFocus
+                              variant="standard"
+                              value={value.item}
+                              sx={{ width: '100%' }}
+                              InputProps={{
+                                disableUnderline: true
+                              }}
+                              onChange={({ target }) => {
+                                editItem({ ...value, item: target.value })
+                              }}
+                              onBlur={() => {
+                                handleItemFocusChange(index)
+                              }}
+                            />
+                          )}
+                        </ListItemButton>
+                      </ListItem>
+                    )}
+                  </Draggable>
+                )
+              })}
+              {provided.placeholder}
+            </List>
+          )}
+        </Droppable>
+      </DragDropContext>
     </Box>
   )
 }

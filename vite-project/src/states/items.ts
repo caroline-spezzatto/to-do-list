@@ -13,6 +13,7 @@ export interface State {
   editItem(item: Item): void
   removeItem(item: Item): void
   completedItem(item: Item): void
+  reorderItems(items: Item[]): void
 }
 
 export const useItems = create(
@@ -25,6 +26,7 @@ export const useItems = create(
           items: state.items.map(i => (i.id === item.id ? item : i))
         }))
       },
+      reorderItems: items => set({ items }),
       removeItem: item =>
         set(state => ({
           items: state.items.filter(({ id }) => id !== item.id)

@@ -15,12 +15,14 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
     "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
     "styled-components": "^6.1.8",
     "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.56",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
