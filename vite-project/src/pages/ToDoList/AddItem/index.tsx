@@ -1,10 +1,11 @@
-import { Box, IconButton, TextField } from '@mui/material'
+import { IconButton, TextField } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import { AddItemProps } from './interfaces'
+import { FormStyled } from './styles'
 
 export const AddItem = ({ item, setItem, handleAddItem }: AddItemProps) => {
   return (
-    <Box display="flex">
+    <FormStyled>
       <TextField
         fullWidth
         value={item}
@@ -16,14 +17,14 @@ export const AddItem = ({ item, setItem, handleAddItem }: AddItemProps) => {
         }}
       />
       <IconButton
-        disabled={!item}
         type="submit"
+        disabled={!item}
         onClick={() => {
           handleAddItem(item), setItem('')
         }}
       >
         <AddIcon fontSize="large" />
       </IconButton>
-    </Box>
+    </FormStyled>
   )
 }

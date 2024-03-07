@@ -77,11 +77,12 @@ export const Items = ({
                   >
                     {provided => (
                       <ListItem
+                        key={index}
+                        disablePadding
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        key={index}
-                        disablePadding
+                        sx={{ wordBreak: 'break-all' }}
                         secondaryAction={
                           <IconButton
                             edge="end"
